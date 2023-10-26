@@ -71,5 +71,5 @@ if __name__ == '__main__':
     dir = "C:\\Users\\taube\\OneDrive\\Desktop\\Uni - LaptopAsus\\WS23-24\\ML_Projekt\\Projekt_ML\\traffic_light_data"
     train_ds = MyDataset(data_dir=dir,is_train=True)
     demo1(train_ds)
-    #demo2(train_ds)
+    demo2(train_ds)
     
