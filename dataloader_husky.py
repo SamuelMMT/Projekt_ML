@@ -1,11 +1,13 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision
-from torchvision.transforms import ToTensor
+from torchvision.transforms import ToTensor, Resize, CenterCrop, Compose
 import os
 from PIL import Image
 
 #Data already sorted 80% train and 20% val
+class_to_index = {"green": 1, "red": 2, "yellow": 3, "back": 0}
+
 
 class MyDataset(Dataset):
     def __init__(self, data_dir, is_train=True, transform=None):
@@ -40,8 +42,9 @@ class MyDataset(Dataset):
         image = Image.open(image_path)
         ###################################
         if self.transform:
-            image = self.transform(image)                  # modify raw data if necessary
-        return image, label
+            image = self.transform(image) # modify raw data if necessary
+        label_index = class_to_index[label]
+        return image, label_index
 
     def __len__(self):
         return len(self.data)
