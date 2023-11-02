@@ -15,7 +15,7 @@ import torch
 #import torch.utils.data.dataloader as dataloader
 from torch.utils.data import TensorDataset, DataLoader
 import torchvision
-from torchvision.transforms import ToTensor, Compose, Lambda, Resize
+from torchvision.transforms import ToTensor, Compose, Lambda, Resize #flatten!!!!
 import matplotlib.pyplot as plt
 import os
 from dataloader_husky import MyDataset
@@ -40,11 +40,11 @@ def model(X, W, b):
 
 def loss(Y_true, Y_pred):
     Y_true_oh = torch.nn.functional.one_hot(Y_true, num_classes=4)   # recode to a one-hot tensor
-    sample_loss = -(Y_true_oh*torch.log(Y_pred+1e-7)).sum(axis=1)
+    sample_loss = -(Y_true_oh*torch.log(Y_pred+1e-7)).sum(axis=1) #1e-7 damit keine neg Werte
     return sample_loss.mean()
 ####################################################################################
 
-
+#MLP schlecht für große Bilder und wenn sich Objekte an unterschiedlichen Stellen befinden
 ####################################################################################
 # The Trainer
 def train_step(X, Y_true, W, b, opt):
