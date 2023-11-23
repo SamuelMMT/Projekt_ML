@@ -6,9 +6,10 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
+import os
 
 # Pfad zu Ihrem Datensatz
-dataset_path = "Desktop/Projekt_ML/traffic_light_data"
+dataset_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "traffic_light_data")
 
 # Vordefinierte Transformationen für die Bilder
 transform = transforms.Compose([
