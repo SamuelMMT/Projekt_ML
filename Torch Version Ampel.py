@@ -1,3 +1,5 @@
+#YOLO, Moving Window Approach
+
 import torch
 import torchvision
 import torch.nn as nn
@@ -140,3 +142,4 @@ with torch.no_grad():
 
 print(f"Predicted Class: {class_names[predicted_class]}")
 print(f"Class Probabilities: {probabilities[0]}")
+
