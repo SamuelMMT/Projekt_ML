@@ -1,5 +1,9 @@
 #YOLO, Moving Window Approach
 
+
+#imagenet
+#Bereits vorhandenes Netz vorschalten, abschneiden und eigenes Netz ansetzt (kleiner Datensatz mit dem eignen Netz zu bearbeiten)
+
 import torch
 import torchvision
 import torch.nn as nn
