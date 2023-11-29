@@ -53,7 +53,7 @@ class TrafficLightClassifier(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(128, 64),
             nn.ReLU(inplace=True),
-            nn.Linear(64, 4),  # 3 Ausgabe-Klassen: rot, gelb, grün
+            nn.Linear(64, 4),  # 4 Ausgabe-Klassen: rot, gelb, grün
             nn.Softmax(dim=1)
         )
     
