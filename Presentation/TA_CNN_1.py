@@ -11,7 +11,7 @@ import numpy as np
 dataset_path = os.getcwd() + '/traffic_light_data'
 
 transform = transforms.Compose([
-    transforms.Resize((64, 64)),
+    transforms.Resize((64, 64)),   
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
@@ -43,7 +43,7 @@ class Model(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(128, 64),
             nn.ReLU(inplace=True),
-            nn.Linear(64, 4),  # 4 output classes: red, yellow, green
+            nn.Linear(64, 4),  # 4 output classes: red, yellow, green, back
         )
 
     def forward(self, X0):
@@ -65,11 +65,12 @@ def train_step(X, Y_true, mdl, opt):
     opt.zero_grad() 
     return L.detach().numpy()
 
-def train(train_dl, val_dl, mdl, alpha, n_epochs):
+def train(train_dl, val_dl, mdl, alpha, max_epochs, target_val_loss = None, min_delta = 0.001):
     opt = torch.optim.Adam(mdl.parameters(), lr=alpha)
     hist = {'train_loss': [], 'val_loss': []}
-    
-    for epoch in range(n_epochs):
+    best_val_loss = float('inf')
+    epochs_without_improvement = 0
+    for epoch in range(max_epochs):
         mdl.train()
         for step, (X, Y_true) in enumerate(train_dl):
             L = train_step(X, Y_true, mdl, opt)
@@ -87,22 +88,41 @@ def train(train_dl, val_dl, mdl, alpha, n_epochs):
         avg_train_loss = sum(hist['train_loss'][-len(train_dl):]) / len(train_dl)
         avg_val_loss = sum(val_losses) / len(val_losses)
         
-        print(f'Epoch {epoch+1}/{n_epochs}, Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}')
+        print(f'Epoch {epoch+1}/{max_epochs}, Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}')
+        
+        # Check for improvement in validation loss
+        if target_val_loss is not None and best_val_loss - avg_val_loss > min_delta:
+            best_val_loss = avg_val_loss
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+        
+        # Check stopping conditions
+        if epochs_without_improvement >= 3:  # Adjust as needed
+            print("Stopping early due to lack of improvement.")
+            break
+        
+        
     return hist
 
 mdl = Model()
-hist = train(train_dl, val_dl, mdl, alpha=0.001, n_epochs=10)
+max_epochs = 20
+hist = train(train_dl, val_dl, mdl, alpha=0.00001, max_epochs=max_epochs, target_val_loss=0.1)
 
-def plot_losses(train_loss, val_loss, num_val_batches):
-    val_x = np.linspace(0, len(train_loss), len(val_loss))
+def plot_losses(train_loss, val_loss, num_train_batches, num_val_batches):
+    # Create x-axis values for the training and validation losses
+    train_x = np.arange(len(train_loss)) / num_train_batches
+    val_x = np.arange(len(val_loss)) * num_val_batches / num_train_batches
+
     plt.figure()
-    plt.plot(train_loss, label='Training Loss')
-    # Normalize validation loss by the number of batches in the validation set
-    normalized_val_loss = [val / num_val_batches for val in val_loss]
-    plt.plot(val_x, normalized_val_loss, label='Validation Loss')
-    plt.xlabel('Batch')
+    plt.plot(train_x, train_loss, label='Training Loss')
+    plt.plot(val_x, val_loss, label='Validation Loss')
+    plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
     plt.show()
 
-plot_losses(hist['train_loss'], hist['val_loss'], len(val_dl))
+# Example usage
+num_train_batches = len(train_dl)
+num_val_batches = len(val_dl)
+plot_losses(hist['train_loss'], hist['val_loss'], num_train_batches, num_val_batches)
